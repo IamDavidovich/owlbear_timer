@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 
-import Countdown, { CountdownApi } from 'react-countdown';
 import OBR from "@owlbear-rodeo/sdk";
 import CountdownControls from "./CountdownControls";
 import CountdownTimer from "./CountdownTimer";
 
-export default class CountdownUi extends Component<any, any> {
+export default class Countdown extends Component<any, any> {
     state = {
         playerRole: undefined,
     };
@@ -27,7 +26,7 @@ export default class CountdownUi extends Component<any, any> {
     render() {
         return (
             <>
-                {/*<CountdownTimer />*/}
+                <CountdownTimer />
                 { this.getPlayerRole() == 'GM' ? <CountdownControls /> : null }
             </>
         );

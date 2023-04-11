@@ -1,131 +1,94 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
-import Countdown, { CountdownApi } from 'react-countdown';
 import OBR from "@owlbear-rodeo/sdk";
+import {getPluginId} from "./getPluginId";
+import {TimerEvent, TimerEventNames} from "./timerEvent";
 
 export default class CountdownTimer extends Component<any, any> {
-    countdownApi: CountdownApi | null = null;
-    state = {
-        date: Date.now() + 10000,
-        defaultInterval: 10000, // 120000, // 2 minutes
+    state:{
+        isPlaying: boolean;
+        lastEvent: TimerEvent | null;
+    } = {
         isPlaying: false,
-        playerRole: undefined,
+        lastEvent: null,
     };
 
     componentDidMount() {
-        this.fetchPlayerRole();
-    }
+        // Register listener
+        OBR.scene.onMetadataChange((metadata) => {
+            let eventData = metadata[getPluginId('event')];
+            if (!eventData) {
+                return;
+            }
 
-    handleStartClick = (): void => {
-        this.setState({isPlaying: true})
-        this.countdownApi && this.countdownApi.start();
-    };
+            let lastEvent: TimerEvent = {
+                event: eventData.event as TimerEventNames,
+                timestamp: eventData.timestamp as number,
+                interval: eventData.interval as number,
+            }
 
-    handlePauseClick = (): void => {
-        this.setState({isPlaying: false})
-        this.countdownApi && this.countdownApi.pause();
-    };
-
-    handleStopClick = (): void => {
-        this.setState({isPlaying: false})
-        this.countdownApi && this.countdownApi.stop();
-    };
-
-    handleResetClick = (): void => {
-        // Using `stop` here works better because it resets the timer, but
-        // also triggers the onStop callback where we can continue playing
-        // if we want to.
-        // This works because in handleUpdate we check look at the current
-        // isPlaying state and start the timer if it's true.
-        this.countdownApi && this.countdownApi.stop();
-    };
-
-    handleUpdate = (): void => {
-        console.log("isPlaying in update ", this.state.isPlaying.toString())
-        if (this.state.isPlaying && (this.isStopped() || this.isPaused()) && !this.isCompleted()) {
-            this.countdownApi && this.countdownApi.start();
-        }
-        this.forceUpdate();
-    };
-
-    setRef = (countdown: Countdown | null): void => {
-        if (countdown) {
-            this.countdownApi = countdown.getApi();
-        }
-    };
-
-    isPlaying(): boolean {
-        return !(this.isPaused() || this.isStopped() || this.isCompleted());
-    }
-
-    isPaused(): boolean {
-        return !!(this.countdownApi && this.countdownApi.isPaused());
-    }
-
-    isCompleted(): boolean {
-        return !!(this.countdownApi && this.countdownApi.isCompleted());
-    }
-
-    isStopped(): boolean {
-        return !!(this.countdownApi && this.countdownApi.isStopped());
-    }
-
-    fetchPlayerRole(): void {
-        OBR.player.getRole()
-            .then((role) => { this.setState({playerRole: role});
+            if (!this.alreadyReceived(lastEvent)) {
+                this.setState({lastEvent: lastEvent});
+                this.handleEvent(lastEvent);
+            }
         })
     }
 
-    getPlayerRole(): string | undefined {
-        return this.state.playerRole;
+    alreadyReceived(event: TimerEvent): boolean {
+        return this.state.lastEvent?.event === event.event && this.state.lastEvent?.timestamp === event.timestamp
     }
 
+    handleEvent(event: TimerEvent): void {
+        switch (event.event) {
+            case TimerEventNames.Play:
+                this.handlePlayEvent(event)
+                break;
+            case TimerEventNames.Pause:
+                this.handlePauseEvent(event)
+                break;
+            case TimerEventNames.Stop:
+                this.handleStopEvent(event)
+                break;
+            case TimerEventNames.Reset:
+                this.handleResetEvent(event)
+                break;
+        }
+    }
+
+    handlePlayEvent(event: TimerEvent): void {
+        this.setState({isPlaying: true})
+        console.log('handlePlayEvent', event)
+    }
+
+    handlePauseEvent(event: TimerEvent): void {
+        this.setState({isPlaying: false})
+        console.log('handlePauseEvent', event)
+    }
+
+    handleStopEvent(event: TimerEvent): void {
+        this.setState({isPlaying: false})
+        console.log('handleStopEvent', event)
+    }
+
+    handleResetEvent(event: TimerEvent): void {
+        console.log('handleResetEvent', event)
+    }
+
+    getLastEvent(): TimerEvent {
+        return (this.state.lastEvent) ? this.state.lastEvent : {
+            event: TimerEventNames.Stop,
+            timestamp: 0,
+            interval: 0,
+        };
+    }
     render() {
         return (
             <>
-                <Countdown
-                    key={this.state.date}
-                    ref={this.setRef}
-                    date={this.state.date}
-                    onMount={this.handleUpdate}
-                    onStart={this.handleUpdate}
-                    onPause={this.handleUpdate}
-                    onStop={this.handleUpdate}
-                    onComplete={this.handleUpdate}
-                    autoStart={false}
-                />
-                <div>
-                    <button
-                        type="button"
-                        onClick={this.handleStartClick}
-                        disabled={!(this.isPaused() || this.isStopped()) || this.isCompleted()}
-                    >
-                        Start
-                    </button>{' '}
-                    <button
-                        type="button"
-                        onClick={this.handlePauseClick}
-                        disabled={this.isPaused() || this.isStopped() || this.isCompleted()}
-                    >
-                        Pause
-                    </button>{' '}
-                    <button
-                        type="button"
-                        onClick={this.handleStopClick}
-                        disabled={this.isStopped() || this.isCompleted()}
-                    >
-                        Stop
-                    </button>{' '}
-                    <button type="button" onClick={this.handleResetClick}>
-                        Reset
-                    </button>
-                </div>
                 <ul>
-                    <li>Is this the GM?: {this.getPlayerRole()}</li>
-                    <li>isPlaying: {this.isPlaying().toString()}</li>
-                    <li>isPaused: {this.isPaused().toString()}</li>
-                    <li>isStopped: {this.isStopped().toString()}</li>
-                    <li>isCompleted: {this.isCompleted().toString()}</li>
+                    <li>isPlaying: {this.state.isPlaying.toString()}</li>
+                    <li>last event type: {this.getLastEvent().event}</li>
+                    <li>last event timestamp: {this.getLastEvent().timestamp}</li>
+                    <li>last event interval: {this.getLastEvent().interval}</li>
                 </ul>
             </>
         );

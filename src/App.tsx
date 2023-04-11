@@ -1,5 +1,5 @@
 import './App.css'
-import CountdownUi from "./CountdownUi";
+import Countdown from "./Countdown";
 import OBR from "@owlbear-rodeo/sdk";
 import {useEffect, useState} from "react";
 
@@ -15,11 +15,11 @@ function App() {
   );
 
   if (sceneReady) {
-    return <CountdownUi />;
+    return <Countdown />;
   } else {
     // Show a basic header when the scene isn't ready
     return (
-        <div>Loadin...</div>
+        <div>Loadin'...</div>
     );
   }
 }
