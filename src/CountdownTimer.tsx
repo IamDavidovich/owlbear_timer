@@ -1,95 +1,135 @@
 import React, {Component} from 'react';
 
-import OBR from "@owlbear-rodeo/sdk";
-import {getPluginId} from "./getPluginId";
-import {TimerEvent, TimerEventNames} from "./timerEvent";
+interface CountdownTimerProps {
+    setRef: (ref: CountdownTimerAPI) => void;
+}
 
-export default class CountdownTimer extends Component<any, any> {
-    state:{
-        isPlaying: boolean;
-        lastEvent: TimerEvent | null;
-    } = {
-        isPlaying: false,
-        lastEvent: null,
-    };
+export interface CountdownTimerAPI {
+    start: (startTimestamp: number, interval: number) => void;
+    stop: (interval: number) => void;
+    pause: (interval: number) => void;
+    reset: (startTimestamp: number, interval: number) => void;
+    getRemainingTime: () => number;
+}
+
+export default class CountdownTimer extends Component<CountdownTimerProps, any> {
+    state = {
+        startTime: Date.now(),
+        interval: 10000,
+        timeRemaining: 10000,
+    }
+
+    private timeoutReference: number | null = null
 
     componentDidMount() {
-        // Register listener
-        OBR.scene.onMetadataChange((metadata) => {
-            let eventData = metadata[getPluginId('event')];
-            if (!eventData) {
-                return;
-            }
-
-            let lastEvent: TimerEvent = {
-                event: eventData.event as TimerEventNames,
-                timestamp: eventData.timestamp as number,
-                interval: eventData.interval as number,
-            }
-
-            if (!this.alreadyReceived(lastEvent)) {
-                this.setState({lastEvent: lastEvent});
-                this.handleEvent(lastEvent);
-            }
-        })
+        this.props.setRef(this.getApi());
     }
 
-    alreadyReceived(event: TimerEvent): boolean {
-        return this.state.lastEvent?.event === event.event && this.state.lastEvent?.timestamp === event.timestamp
+    componentWillUnmount() {
+        this.stopTimer();
     }
 
-    handleEvent(event: TimerEvent): void {
-        switch (event.event) {
-            case TimerEventNames.Play:
-                this.handlePlayEvent(event)
-                break;
-            case TimerEventNames.Pause:
-                this.handlePauseEvent(event)
-                break;
-            case TimerEventNames.Stop:
-                this.handleStopEvent(event)
-                break;
-            case TimerEventNames.Reset:
-                this.handleResetEvent(event)
-                break;
+    startTimer(): void {
+        if (this.timeoutReference === null) {
+            this.timeoutReference = setInterval(() => this.tick(), 1000);
         }
     }
 
-    handlePlayEvent(event: TimerEvent): void {
-        this.setState({isPlaying: true})
-        console.log('handlePlayEvent', event)
+    stopTimer(): void {
+        if (this.timeoutReference !== null) {
+            clearInterval(this.timeoutReference);
+            this.timeoutReference = null;
+        }
     }
 
-    handlePauseEvent(event: TimerEvent): void {
-        this.setState({isPlaying: false})
-        console.log('handlePauseEvent', event)
+    tick(): void {
+        const timeLeft = this.state.startTime + this.state.interval - Date.now();
+
+        // Round to the nearest thousand (I.e. second)
+        const total = Math.round(Math.max(0, timeLeft) / 1000) * 1000;
+
+        this.setState({ timeRemaining: total });
     }
 
-    handleStopEvent(event: TimerEvent): void {
-        this.setState({isPlaying: false})
-        console.log('handleStopEvent', event)
+    getApi(): CountdownTimerAPI {
+        return {
+            start: this.start.bind(this),
+            stop: this.stop.bind(this),
+            pause: this.pause.bind(this),
+            reset: this.reset.bind(this),
+            getRemainingTime: this.getRemainingTime.bind(this),
+        }
     }
 
-    handleResetEvent(event: TimerEvent): void {
-        console.log('handleResetEvent', event)
+    start(startTimestamp: number, interval: number): void {
+        console.log('start', startTimestamp, interval)
+
+        this.setState({
+            startTime: startTimestamp,
+            interval: interval,
+            timeRemaining: interval,
+        })
+
+        this.startTimer();
     }
 
-    getLastEvent(): TimerEvent {
-        return (this.state.lastEvent) ? this.state.lastEvent : {
-            event: TimerEventNames.Stop,
-            timestamp: 0,
-            interval: 0,
-        };
+    stop(interval: number): void {
+        console.log('stop', interval)
+
+        this.setState({
+            startTime: Date.now(),
+            interval: interval,
+            timeRemaining: interval,
+        })
+
+        this.stopTimer();
     }
+
+    pause(interval: number): void {
+        console.log('pause', interval)
+
+        this.setState({
+            startTime: Date.now(),
+            interval: interval,
+            timeRemaining: interval,
+        })
+
+        this.stopTimer();
+    }
+
+    reset(startTimestamp: number, interval: number): void {
+        console.log('reset', startTimestamp, interval)
+
+        this.setState({
+            startTime: startTimestamp,
+            interval: interval,
+            timeRemaining: interval,
+        })
+
+        // TODO wrap this check in a more descriptive function
+        if (this.timeoutReference !== null) {
+            // If we're running, reset the timer to ensure the first second is a whole second.
+            this.stopTimer();
+            this.startTimer();
+        }
+    }
+
+    getRemainingTime(): number {
+        return this.state.timeRemaining;
+    }
+
     render() {
+        const h: number = Math.floor((this.state.timeRemaining / (1000 * 60 * 60)) % 24);
+        const m: number = Math.floor((this.state.timeRemaining / 1000 / 60) % 60);
+        const s: number = Math.floor((this.state.timeRemaining / 1000) % 60);
+
+        const hh = h.toString().padStart(2, '0');
+        const mm = m.toString().padStart(2, '0');
+        const ss = s.toString().padStart(2, '0');
+
         return (
             <>
-                <ul>
-                    <li>isPlaying: {this.state.isPlaying.toString()}</li>
-                    <li>last event type: {this.getLastEvent().event}</li>
-                    <li>last event timestamp: {this.getLastEvent().timestamp}</li>
-                    <li>last event interval: {this.getLastEvent().interval}</li>
-                </ul>
+                <h2>{hh}:{mm}:{ss}</h2>
             </>
         );
     }

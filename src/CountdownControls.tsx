@@ -45,6 +45,7 @@ export default class CountdownControls extends Component<any, any> {
     };
 
     handleStartClick = (): void => {
+        console.log('handleStartClick')
         this.setState({isPlaying: true})
         this.triggerEvent({
             event: TimerEventNames.Play,
@@ -80,6 +81,8 @@ export default class CountdownControls extends Component<any, any> {
     };
 
     triggerEvent = (event: TimerEvent): void => {
+        console.log('triggerEvent', event)
+
         OBR.scene.setMetadata({
             [getPluginId('event')]: event,
         })

@@ -6,7 +6,7 @@
     "title": "Timer",
     "icon": "/icon.svg",
     "popover": "/",
-    "height": 200,
+    "height": 500,
     "width": 400
   }
 }
