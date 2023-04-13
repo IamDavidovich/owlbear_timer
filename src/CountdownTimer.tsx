@@ -10,6 +10,7 @@ export interface CountdownTimerAPI {
     pause: (interval: number) => void;
     reset: (startTimestamp: number, interval: number) => void;
     getRemainingTime: () => number;
+    isRunning: () => boolean;
 }
 
 export default class CountdownTimer extends Component<CountdownTimerProps, any> {
@@ -58,6 +59,7 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
             pause: this.pause.bind(this),
             reset: this.reset.bind(this),
             getRemainingTime: this.getRemainingTime.bind(this),
+            isRunning: this.isRunning.bind(this),
         }
     }
 
@@ -106,8 +108,7 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
             timeRemaining: interval,
         })
 
-        // TODO wrap this check in a more descriptive function
-        if (this.timeoutReference !== null) {
+        if (this.isRunning()) {
             // If we're running, reset the timer to ensure the first second is a whole second.
             this.stopTimer();
             this.startTimer();
@@ -116,6 +117,10 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
 
     getRemainingTime(): number {
         return this.state.timeRemaining;
+    }
+
+    isRunning(): boolean {
+        return this.timeoutReference !== null;
     }
 
     render() {

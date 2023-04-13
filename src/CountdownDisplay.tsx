@@ -7,10 +7,8 @@ import CountdownTimer, {CountdownTimerAPI} from "./CountdownTimer";
 
 export default class CountdownDisplay extends Component<any, any> {
     state:{
-        isPlaying: boolean;
         lastEvent: TimerEvent | null;
     } = {
-        isPlaying: false,
         lastEvent: null,
     };
 
@@ -60,28 +58,32 @@ export default class CountdownDisplay extends Component<any, any> {
             case TimerEventNames.Reset:
                 this.handleResetEvent(event)
                 break;
+            case TimerEventNames.UpdateDefaultInterval:
+                this.handleUpdateDefaultIntervalEvent(event)
+                break;
         }
     }
 
     handlePlayEvent(event: TimerEvent): void {
-        this.setState({isPlaying: true})
         this.countdownTimer.start(event.timestamp, event.interval)
     }
 
     handlePauseEvent(event: TimerEvent): void {
-        console.log('handlePauseEvent', event)
-        this.setState({isPlaying: false})
         this.countdownTimer.pause(event.interval)
     }
 
     handleStopEvent(event: TimerEvent): void {
-        this.setState({isPlaying: false})
         this.countdownTimer.stop(event.interval)
     }
 
     handleResetEvent(event: TimerEvent): void {
-        console.log('handleResetEvent', event)
         this.countdownTimer.reset(event.timestamp, event.interval)
+    }
+
+    handleUpdateDefaultIntervalEvent(event: TimerEvent): void {
+        if (!this.countdownTimer.isRunning()) {
+            this.countdownTimer.reset(event.timestamp, event.interval)
+        }
     }
 
     getLastEvent(): TimerEvent {
@@ -96,7 +98,6 @@ export default class CountdownDisplay extends Component<any, any> {
             <>
                 <CountdownTimer setRef={(ref) => this.countdownTimer = ref} />
                 <ul>
-                    <li>isPlaying: {this.state.isPlaying.toString()}</li>
                     <li>last event type: {this.getLastEvent().event}</li>
                     <li>last event timestamp: {this.getLastEvent().timestamp}</li>
                     <li>last event interval: {this.getLastEvent().interval}</li>

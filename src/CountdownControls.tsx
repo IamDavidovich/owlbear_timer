@@ -39,7 +39,7 @@ export default class CountdownControls extends Component<any, any> {
 
     state = {
         date: Date.now() + 10000,
-        defaultInterval: 10000, // 120000, // 2 minutes
+        interval: 10000, // 120000, // 2 minutes
         isPlaying: false,
         playerRole: undefined,
     };
@@ -50,7 +50,7 @@ export default class CountdownControls extends Component<any, any> {
         this.triggerEvent({
             event: TimerEventNames.Play,
             timestamp: Date.now(),
-            interval: this.state.defaultInterval,
+            interval: this.state.interval,
         });
     };
 
@@ -59,7 +59,7 @@ export default class CountdownControls extends Component<any, any> {
         this.triggerEvent({
             event: TimerEventNames.Pause,
             timestamp: Date.now(),
-            interval: this.state.defaultInterval,
+            interval: this.state.interval,
         });
     };
 
@@ -68,7 +68,7 @@ export default class CountdownControls extends Component<any, any> {
         this.triggerEvent({
             event: TimerEventNames.Stop,
             timestamp: Date.now(),
-            interval: this.state.defaultInterval,
+            interval: this.state.interval,
         });
     };
 
@@ -76,9 +76,20 @@ export default class CountdownControls extends Component<any, any> {
         this.triggerEvent({
             event: TimerEventNames.Reset,
             timestamp: Date.now(),
-            interval: this.state.defaultInterval,
+            interval: this.state.interval,
         });
     };
+
+    handleIntervalChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        const newInterval = parseInt(e.target.value)
+        this.setState({interval: newInterval})
+
+        this.triggerEvent({
+            event: TimerEventNames.UpdateDefaultInterval,
+            timestamp: Date.now(),
+            interval: newInterval,
+        });
+    }
 
     triggerEvent = (event: TimerEvent): void => {
         console.log('triggerEvent', event)
@@ -91,6 +102,14 @@ export default class CountdownControls extends Component<any, any> {
     render() {
         return (
             <>
+                <fieldset>
+                    Countdown from:
+                    <input
+                        type="number"
+                        value={this.state.interval}
+                        onChange={this.handleIntervalChange}
+                    />
+                </ fieldset>
                 <div>
                     <button
                         type="button"

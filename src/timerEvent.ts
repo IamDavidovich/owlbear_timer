@@ -9,4 +9,5 @@ export enum TimerEventNames {
     Pause = "PAUSE",
     Stop = "STOP",
     Reset = "RESET",
+    UpdateDefaultInterval = "UPDATE_DEFAULT_INTERVAL",
 }
