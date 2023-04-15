@@ -7,7 +7,7 @@ interface CountdownTimerProps {
 export interface CountdownTimerAPI {
     start: (startTimestamp: number, interval: number) => void;
     stop: (interval: number) => void;
-    pause: (interval: number) => void;
+    pause: (stopTimestamp: number) => void;
     reset: (startTimestamp: number, interval: number) => void;
     getRemainingTime: () => number;
     isRunning: () => boolean;
@@ -87,14 +87,16 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
         this.stopTimer();
     }
 
-    pause(interval: number): void {
-        console.log('pause', interval)
+    pause(pauseTimestamp: number): void {
+        console.log('pause', pauseTimestamp)
 
-        this.setState({
-            startTime: Date.now(),
-            interval: interval,
-            timeRemaining: interval,
-        })
+        // const remainingAtPause = this.state.startTime + this.state.interval - pauseTimestamp;
+        //
+        // this.setState({
+        //     startTime: Date.now(),
+        //     interval: interval,
+        //     timeRemaining: interval,
+        // })
 
         this.stopTimer();
     }

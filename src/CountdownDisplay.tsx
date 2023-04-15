@@ -69,7 +69,7 @@ export default class CountdownDisplay extends Component<any, any> {
     }
 
     handlePauseEvent(event: TimerEvent): void {
-        this.countdownTimer.pause(event.interval)
+        this.countdownTimer.pause(event.timestamp)
     }
 
     handleStopEvent(event: TimerEvent): void {
