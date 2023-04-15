@@ -5,7 +5,12 @@ import {getPluginId} from "./getPluginId";
 import {TimerEvent, TimerEventNames} from "./timerEvent";
 import CountdownTimer, {CountdownTimerAPI} from "./CountdownTimer";
 
-export default class CountdownDisplay extends Component<any, any> {
+interface CountdownDisplayProps {
+    interval: number;
+    onTimerUpdate: (timeRemaining: number) => void;
+    onTimerComplete: () => void;
+}
+export default class CountdownDisplay extends Component<CountdownDisplayProps, any> {
     state:{
         lastEvent: TimerEvent | null;
     } = {
@@ -18,6 +23,9 @@ export default class CountdownDisplay extends Component<any, any> {
     componentDidMount() {
         // Register listener
         this.unsubscribeMetadataListener = OBR.scene.onMetadataChange((metadata) => {
+            console.log('metadata changed', metadata);
+            console.log('last event', this.state.lastEvent);
+
             let eventData = metadata[getPluginId('event')];
             if (!eventData) {
                 return;
@@ -29,7 +37,9 @@ export default class CountdownDisplay extends Component<any, any> {
                 interval: eventData.interval as number,
             }
 
-            if (!this.alreadyReceived(lastEvent)) {
+            if (!this.state.lastEvent) {
+                this.setState({lastEvent: lastEvent});
+            } else if (!this.alreadyReceived(lastEvent)) {
                 this.setState({lastEvent: lastEvent});
                 this.handleEvent(lastEvent);
             }
@@ -93,10 +103,16 @@ export default class CountdownDisplay extends Component<any, any> {
             interval: 0,
         };
     }
+
     render() {
         return (
             <>
-                <CountdownTimer setRef={(ref) => this.countdownTimer = ref} />
+                <CountdownTimer
+                    setRef={(ref) => this.countdownTimer = ref}
+                    interval={this.props.interval}
+                    onTimerComplete={this.props.onTimerComplete}
+                    onTimerUpdate={this.props.onTimerUpdate}
+                />
                 <ul>
                     <li>last event type: {this.getLastEvent().event}</li>
                     <li>last event timestamp: {this.getLastEvent().timestamp}</li>

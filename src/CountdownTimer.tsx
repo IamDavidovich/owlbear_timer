@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
 
 interface CountdownTimerProps {
+    interval: number;
     setRef: (ref: CountdownTimerAPI) => void;
+    onTimerUpdate: (timeRemaining: number) => void;
+    onTimerComplete: () => void;
 }
 
 export interface CountdownTimerAPI {
@@ -16,7 +19,7 @@ export interface CountdownTimerAPI {
 export default class CountdownTimer extends Component<CountdownTimerProps, any> {
     state = {
         startTime: Date.now(),
-        interval: 10000,
+        interval: this.props.interval,
         timeRemaining: 10000,
     }
 
@@ -50,6 +53,12 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
         const total = Math.round(Math.max(0, timeLeft) / 1000) * 1000;
 
         this.setState({ timeRemaining: total });
+        this.props.onTimerUpdate(total)
+
+        if (total <= 0) {
+            this.stopTimer();
+            this.props.onTimerComplete();
+        }
     }
 
     getApi(): CountdownTimerAPI {
@@ -89,14 +98,6 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
 
     pause(pauseTimestamp: number): void {
         console.log('pause', pauseTimestamp)
-
-        // const remainingAtPause = this.state.startTime + this.state.interval - pauseTimestamp;
-        //
-        // this.setState({
-        //     startTime: Date.now(),
-        //     interval: interval,
-        //     timeRemaining: interval,
-        // })
 
         this.stopTimer();
     }
