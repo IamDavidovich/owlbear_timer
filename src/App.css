@@ -1,42 +1,55 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+body {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    background-color: rgba(34, 38, 57, 0.6);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+#countdown_timer {
+    font-variant-numeric: tabular-nums;
+    display: block;
+    font-size: 5em;
+    font-weight: bold;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+#controller {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+#controller .controller_button {
+    display: flex;
+    height: 40px;
+    width: 40px;
+    border: 0;
+    border-radius: 20px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    background: transparent;
 }
 
-.card {
-  padding: 2em;
+#controller .controller_button:hover {
+    background: #ffffff15;
 }
 
-.read-the-docs {
-  color: #888;
+#controller .controller_button svg, #controller .controller_button object {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
 }

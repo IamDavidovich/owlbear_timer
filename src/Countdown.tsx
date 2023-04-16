@@ -4,6 +4,7 @@ import OBR from "@owlbear-rodeo/sdk";
 import CountdownDisplay from "./CountdownDisplay";
 import {TimerEvent, TimerEventNames} from "./timerEvent";
 import {getPluginId} from "./getPluginId";
+import ControllerButton, {ControllerButtonType} from "./ControllerButton";
 
 enum CountdownState {
     Stopped = 'stopped',
@@ -106,6 +107,12 @@ export default class Countdown extends Component<any, any> {
                     onTimerComplete={this.onTimerCompleteCallback}
                     onTimerUpdate={this.onTimerUpdateCallback}
                 />
+                <div id="controller">
+                    <ControllerButton buttonType={ControllerButtonType.Start} onClick={this.handleStartClick} disabled={this.state.currentState == CountdownState.Playing} />
+                    <ControllerButton buttonType={ControllerButtonType.Pause} onClick={this.handlePauseClick} disabled={this.state.currentState != CountdownState.Playing} />
+                    <ControllerButton buttonType={ControllerButtonType.Stop} onClick={this.handleStopClick} disabled={this.state.currentState != CountdownState.Playing} />
+                    <ControllerButton buttonType={ControllerButtonType.Reset} onClick={this.handleResetClick} />
+                </div>
                 <fieldset>
                     Countdown from:
                     <input
@@ -114,32 +121,6 @@ export default class Countdown extends Component<any, any> {
                         onChange={this.handleIntervalChange}
                     />
                 </ fieldset>
-                <div>
-                    <button
-                        type="button"
-                        onClick={this.handleStartClick}
-                        disabled={this.state.currentState == CountdownState.Playing}
-                    >
-                        Start
-                    </button>{' '}
-                    <button
-                        type="button"
-                        onClick={this.handlePauseClick}
-                        disabled={this.state.currentState != CountdownState.Playing}
-                    >
-                        Pause
-                    </button>{' '}
-                    <button
-                        type="button"
-                        onClick={this.handleStopClick}
-                        disabled={this.state.currentState != CountdownState.Playing}
-                    >
-                        Stop
-                    </button>{' '}
-                    <button type="button" onClick={this.handleResetClick}>
-                        Reset
-                    </button>
-                </div>
             </>
         );
     }

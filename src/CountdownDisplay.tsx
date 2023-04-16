@@ -113,11 +113,6 @@ export default class CountdownDisplay extends Component<CountdownDisplayProps, a
                     onTimerComplete={this.props.onTimerComplete}
                     onTimerUpdate={this.props.onTimerUpdate}
                 />
-                <ul>
-                    <li>last event type: {this.getLastEvent().event}</li>
-                    <li>last event timestamp: {this.getLastEvent().timestamp}</li>
-                    <li>last event interval: {this.getLastEvent().interval}</li>
-                </ul>
             </>
         );
     }

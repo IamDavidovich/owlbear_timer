@@ -135,9 +135,10 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
         const mm = m.toString().padStart(2, '0');
         const ss = s.toString().padStart(2, '0');
 
+        const timerString = (h == 0 ? '' : hh + ':') + mm + ':' + ss;
         return (
             <>
-                <h2>{hh}:{mm}:{ss}</h2>
+                <div id="countdown_timer">{timerString}</div>
             </>
         );
     }
