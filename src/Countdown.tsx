@@ -19,6 +19,7 @@ export default class Countdown extends Component<any, any> {
         timeRemaining: 10000,
         isPlaying: false,
         currentState: 'stopped',
+        editHidden: true,
     };
 
     componentDidMount() {
@@ -64,9 +65,19 @@ export default class Countdown extends Component<any, any> {
         });
     };
 
-    handleIntervalChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-        const newInterval = parseInt(e.target.value)
-        this.setState({interval: newInterval})
+    handleEditClick = (): void => {
+        this.setState({editHidden: false})
+    }
+
+    handleTimerIntervalSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
+        e.preventDefault();
+
+        const h = parseInt(e.target.elements.h.value)
+        const m = parseInt(e.target.elements.m.value)
+        const s = parseInt(e.target.elements.s.value)
+
+        const newInterval = (h * 60 * 60 * 1000) + (m * 60 * 1000) + (s * 1000)
+        this.setState({interval: newInterval, editHidden: true})
 
         this.triggerEvent({
             event: TimerEventNames.UpdateDefaultInterval,
@@ -100,6 +111,10 @@ export default class Countdown extends Component<any, any> {
             />
         }
 
+        const h: number = Math.floor((this.state.interval / (1000 * 60 * 60)) % 24);
+        const m: number = Math.floor((this.state.interval / 1000 / 60) % 60);
+        const s: number = Math.floor((this.state.interval / 1000) % 60);
+
         return (
             <>
                 <CountdownDisplay
@@ -112,15 +127,39 @@ export default class Countdown extends Component<any, any> {
                     <ControllerButton buttonType={ControllerButtonType.Pause} onClick={this.handlePauseClick} disabled={this.state.currentState != CountdownState.Playing} />
                     <ControllerButton buttonType={ControllerButtonType.Stop} onClick={this.handleStopClick} disabled={this.state.currentState != CountdownState.Playing} />
                     <ControllerButton buttonType={ControllerButtonType.Reset} onClick={this.handleResetClick} />
+                    <ControllerButton buttonType={ControllerButtonType.Edit} onClick={this.handleEditClick} disabled={false} />
                 </div>
-                <fieldset>
-                    Countdown from:
-                    <input
-                        type="number"
-                        value={this.state.interval}
-                        onChange={this.handleIntervalChange}
-                    />
-                </ fieldset>
+
+                <div id="set-timer" className={this.state.editHidden ? 'hidden' : ''}>
+                    <form id="timer-interval-form" onSubmit={this.handleTimerIntervalSubmit}>
+                        <input
+                            name="h"
+                            type="number"
+                            defaultValue={h}
+                        />
+                        <span className="divider">:</span>
+                        <input
+                            name="m"
+                            type="number"
+                            defaultValue={m}
+                        />
+                        <span className="divider">:</span>
+                        <input
+                            name="s"
+                            type="number"
+                            defaultValue={s}
+                        />
+                        <button
+                            className={`controller_button accept`}
+                            type="submit"
+                        >
+                            <svg fill="currentColor" width="800px" height="800px" viewBox="-4 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                <title>Accept</title>
+                                <path d="M19.375 5.063l-9.5 13.625-6.563-4.875-3.313 4.594 11.188 8.531 12.813-18.375z"></path>
+                            </svg>
+                        </button>
+                    </ form>
+                </div>
             </>
         );
     }

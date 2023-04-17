@@ -18,6 +18,75 @@ body {
     line-height: 1.2;
 }
 
+#set-timer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    backdrop-filter: blur(20px);
+}
+
+#set-timer.hidden {
+    display: none;
+}
+
+#timer-interval-form {
+    border: 0;
+    /*padding: 20px;*/
+    width: 80%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+#timer-interval-form input {
+    border-radius: 16px;
+    background-clip: padding-box;
+    border: 1px solid rgba(187, 153, 255, 0.5);
+    padding: 5px 15px;
+    font-size: 1.5em;
+    width: 45px;
+    background-color: rgba(34, 38, 57, 0.6);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
+}
+
+#timer-interval-form .divider {
+    font-size: 1.5em;
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+.controller_button {
+    height: 40px;
+    width: 40px;
+    border: 0;
+    border-radius: 20px;
+    padding: 0;
+    background: transparent;
+}
+
+.controller_button:hover {
+    background: #ffffff15;
+}
+
+.controller_button svg {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    outline: none;
+}
+
 #controller {
     display: flex;
     flex-direction: row;
@@ -30,26 +99,7 @@ body {
 
 #controller .controller_button {
     display: flex;
-    height: 40px;
-    width: 40px;
-    border: 0;
-    border-radius: 20px;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 0;
-    background: transparent;
-}
-
-#controller .controller_button:hover {
-    background: #ffffff15;
-}
-
-#controller .controller_button svg, #controller .controller_button object {
-    width: 24px;
-    height: 24px;
-    margin: 0;
-    padding: 0;
-    border: none;
-    outline: none;
 }
