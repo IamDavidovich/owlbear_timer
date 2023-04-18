@@ -5,7 +5,23 @@
     justify-content: center;
     align-items: center;
     padding: 0;
+    transition: background-color 0.5s ease;
 }
+
+#countdown.low {
+    background-color: rgba(255, 140, 0, 0.6);
+}
+
+#countdown.critical {
+    background-color: rgba(227, 0, 0, 0.6);
+}
+
+#countdown.timeout {
+    animation: blink 0.5s;
+    animation-iteration-count: 3;
+}
+
+@keyframes blink { 50% { background-color:#fff ; }  }
 
 #countdown_timer {
     font-variant-numeric: tabular-nums;

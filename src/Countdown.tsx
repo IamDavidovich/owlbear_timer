@@ -103,20 +103,36 @@ export default class Countdown extends Component<any, any> {
     }
 
     render() {
+        const percentTimeRemaining: number = (this.state.timeRemaining / this.state.interval) * 100;
+        let warningClass: string = '';
+        if (10 < percentTimeRemaining && percentTimeRemaining <= 30) {
+            warningClass = 'low';
+        } else if (percentTimeRemaining <= 10) {
+            warningClass = 'critical';
+            if (this.state.timeRemaining == 0) {
+                warningClass += ' timeout';
+            }
+        }
+
         if (this.state.playerRole != 'GM') {
-            return <CountdownDisplay
-                interval={this.state.interval}
-                onTimerComplete={this.onTimerCompleteCallback}
-                onTimerUpdate={this.onTimerUpdateCallback}
-            />
+            return (
+                <div id={"countdown"} className={warningClass}>
+                    <CountdownDisplay
+                        interval={this.state.interval}
+                        onTimerComplete={this.onTimerCompleteCallback}
+                        onTimerUpdate={this.onTimerUpdateCallback}
+                    />
+                </div>
+            )
         }
 
         const h: number = Math.floor((this.state.interval / (1000 * 60 * 60)) % 24);
         const m: number = Math.floor((this.state.interval / 1000 / 60) % 60);
         const s: number = Math.floor((this.state.interval / 1000) % 60);
 
+
         return (
-                <div id={"countdown"}>
+                <div id={"countdown"} className={warningClass}>
                     <CountdownDisplay
                         interval={this.state.interval}
                         onTimerComplete={this.onTimerCompleteCallback}
