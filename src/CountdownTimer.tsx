@@ -80,6 +80,7 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
             interval: interval,
             timeRemaining: interval,
         })
+        this.props.onTimerUpdate(interval)
 
         this.startTimer();
     }
@@ -92,6 +93,7 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
             interval: interval,
             timeRemaining: interval,
         })
+        this.props.onTimerUpdate(interval)
 
         this.stopTimer();
     }
@@ -110,6 +112,8 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
             interval: interval,
             timeRemaining: interval,
         })
+
+        this.props.onTimerUpdate(interval)
 
         if (this.isRunning()) {
             // If we're running, reset the timer to ensure the first second is a whole second.
