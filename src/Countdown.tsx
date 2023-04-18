@@ -116,51 +116,51 @@ export default class Countdown extends Component<any, any> {
         const s: number = Math.floor((this.state.interval / 1000) % 60);
 
         return (
-            <>
-                <CountdownDisplay
-                    interval={this.state.interval}
-                    onTimerComplete={this.onTimerCompleteCallback}
-                    onTimerUpdate={this.onTimerUpdateCallback}
-                />
-                <div id="controller">
-                    <ControllerButton buttonType={ControllerButtonType.Start} onClick={this.handleStartClick} disabled={this.state.currentState == CountdownState.Playing} />
-                    <ControllerButton buttonType={ControllerButtonType.Pause} onClick={this.handlePauseClick} disabled={this.state.currentState != CountdownState.Playing} />
-                    <ControllerButton buttonType={ControllerButtonType.Stop} onClick={this.handleStopClick} disabled={this.state.currentState != CountdownState.Playing} />
-                    <ControllerButton buttonType={ControllerButtonType.Reset} onClick={this.handleResetClick} />
-                    <ControllerButton buttonType={ControllerButtonType.Edit} onClick={this.handleEditClick} disabled={false} />
-                </div>
+                <div id={"countdown"}>
+                    <CountdownDisplay
+                        interval={this.state.interval}
+                        onTimerComplete={this.onTimerCompleteCallback}
+                        onTimerUpdate={this.onTimerUpdateCallback}
+                    />
+                    <div id="controller">
+                        <ControllerButton buttonType={ControllerButtonType.Start} onClick={this.handleStartClick} disabled={this.state.currentState == CountdownState.Playing} />
+                        <ControllerButton buttonType={ControllerButtonType.Pause} onClick={this.handlePauseClick} disabled={this.state.currentState != CountdownState.Playing} />
+                        <ControllerButton buttonType={ControllerButtonType.Stop} onClick={this.handleStopClick} disabled={this.state.currentState != CountdownState.Playing} />
+                        <ControllerButton buttonType={ControllerButtonType.Reset} onClick={this.handleResetClick} />
+                        <ControllerButton buttonType={ControllerButtonType.Edit} onClick={this.handleEditClick} disabled={false} />
+                    </div>
 
-                <div id="set-timer" className={this.state.editHidden ? 'hidden' : ''}>
-                    <form id="timer-interval-form" onSubmit={this.handleTimerIntervalSubmit}>
-                        <input
-                            name="h"
-                            type="number"
-                            defaultValue={h}
-                        />
-                        <span className="divider">:</span>
-                        <input
-                            name="m"
-                            type="number"
-                            defaultValue={m}
-                        />
-                        <span className="divider">:</span>
-                        <input
-                            name="s"
-                            type="number"
-                            defaultValue={s}
-                        />
-                        <button
-                            className={`controller_button accept`}
-                            type="submit"
-                        >
-                            <svg fill="currentColor" width="800px" height="800px" viewBox="-4 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                                <title>Accept</title>
-                                <path d="M19.375 5.063l-9.5 13.625-6.563-4.875-3.313 4.594 11.188 8.531 12.813-18.375z"></path>
-                            </svg>
-                        </button>
-                    </ form>
+                    <div id="set-timer" className={this.state.editHidden ? 'hidden' : ''}>
+                        <form id="timer-interval-form" onSubmit={this.handleTimerIntervalSubmit}>
+                            <input
+                                name="h"
+                                type="number"
+                                defaultValue={h}
+                            />
+                            <span className="divider">:</span>
+                            <input
+                                name="m"
+                                type="number"
+                                defaultValue={m}
+                            />
+                            <span className="divider">:</span>
+                            <input
+                                name="s"
+                                type="number"
+                                defaultValue={s}
+                            />
+                            <button
+                                className={`controller_button accept`}
+                                type="submit"
+                            >
+                                <svg fill="currentColor" width="800px" height="800px" viewBox="-4 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                    <title>Accept</title>
+                                    <path d="M19.375 5.063l-9.5 13.625-6.563-4.875-3.313 4.594 11.188 8.531 12.813-18.375z"></path>
+                                </svg>
+                            </button>
+                        </ form>
+                    </div>
                 </div>
-            </>
         );
     }
 }

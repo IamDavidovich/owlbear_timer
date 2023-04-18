@@ -1,10 +1,10 @@
-body {
+#countdown {
+    width: 100%;
+    min-height: 100vh;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 0;
-    background-color: rgba(34, 38, 57, 0.6);
-    background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
 }
 
 #countdown_timer {
@@ -31,7 +31,9 @@ body {
     margin: 0;
     padding: 0;
     list-style: none;
-    backdrop-filter: blur(20px);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
+    background-color: rgba(34, 38, 57, 0.8);
+    backdrop-filter: blur(10px);
 }
 
 #set-timer.hidden {
@@ -40,7 +42,6 @@ body {
 
 #timer-interval-form {
     border: 0;
-    /*padding: 20px;*/
     width: 80%;
     display: flex;
     flex-direction: row;
@@ -51,10 +52,12 @@ body {
 #timer-interval-form input {
     border-radius: 16px;
     background-clip: padding-box;
-    border: 1px solid rgba(187, 153, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    /*border: 1px solid rgba(187, 153, 255, 0.5);*/
     padding: 5px 15px;
     font-size: 1.5em;
     width: 45px;
+    color: white;
     background-color: rgba(34, 38, 57, 0.6);
     background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05));
 }
@@ -72,6 +75,12 @@ body {
     border-radius: 20px;
     padding: 0;
     background: transparent;
+    color: white;
+}
+
+.controller_button:disabled {
+    opacity: 0.3;
+    cursor: unset;
 }
 
 .controller_button:hover {
@@ -88,11 +97,12 @@ body {
 }
 
 #controller {
+    width: 240px;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    margin: 0;
+    margin: 0 auto;
     padding: 0;
     list-style: none;
 }

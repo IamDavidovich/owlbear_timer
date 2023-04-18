@@ -96,14 +96,6 @@ export default class CountdownDisplay extends Component<CountdownDisplayProps, a
         }
     }
 
-    getLastEvent(): TimerEvent {
-        return (this.state.lastEvent) ? this.state.lastEvent : {
-            event: TimerEventNames.Stop,
-            timestamp: 0,
-            interval: 0,
-        };
-    }
-
     render() {
         return (
             <>
