@@ -23,9 +23,6 @@ export default class CountdownDisplay extends Component<CountdownDisplayProps, a
     componentDidMount() {
         // Register listener
         this.unsubscribeMetadataListener = OBR.scene.onMetadataChange((metadata) => {
-            console.log('metadata changed', metadata);
-            console.log('last event', this.state.lastEvent);
-
             let eventData = metadata[getPluginId('event')];
             if (!eventData) {
                 return;

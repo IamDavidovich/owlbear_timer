@@ -114,16 +114,9 @@ export default class Countdown extends Component<any, any> {
         if (10 < percentTimeRemaining && percentTimeRemaining <= 30) {
             warningClass = 'low';
             // OBR.action.setBadgeBackgroundColor('#FF8C0099')
-            // console.log(OBR.action)
-            OBR.action.getBadgeText()
-                .then((color) => {
-                    console.log(color)
-                })
-            OBR.action.setHeight(300)
         } else if (percentTimeRemaining <= 10) {
             warningClass = 'critical';
-            OBR.action.setBadgeBackgroundColor('#E3000099')
-            OBR.action.setHeight(400)
+            // OBR.action.setBadgeBackgroundColor('#E3000099')
 
             if (this.state.timeRemaining == 0) {
                 warningClass += ' timeout';

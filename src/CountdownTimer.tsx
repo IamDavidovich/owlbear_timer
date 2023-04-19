@@ -73,8 +73,6 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
     }
 
     start(startTimestamp: number, interval: number): void {
-        console.log('start', startTimestamp, interval)
-
         this.setState({
             startTime: startTimestamp,
             interval: interval,
@@ -86,8 +84,6 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
     }
 
     stop(interval: number): void {
-        console.log('stop', interval)
-
         this.setState({
             startTime: Date.now(),
             interval: interval,
@@ -99,14 +95,10 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
     }
 
     pause(pauseTimestamp: number): void {
-        console.log('pause', pauseTimestamp)
-
         this.stopTimer();
     }
 
     reset(startTimestamp: number, interval: number): void {
-        console.log('reset', startTimestamp, interval)
-
         this.setState({
             startTime: startTimestamp,
             interval: interval,
