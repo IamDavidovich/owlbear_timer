@@ -20,13 +20,24 @@ export default class Countdown extends Component<any, any> {
         isPlaying: false,
         currentState: 'stopped',
         editHidden: true,
+        warningClass: '',
     };
+
+    unsubscribePlayerChangeListener: () => void;
 
     componentDidMount() {
         OBR.player.getRole()
             .then((role) => {
                 this.setState({playerRole: role});
             })
+
+        this.unsubscribePlayerChangeListener = OBR.player.onChange((player) => {
+            this.setState({playerRole: player.role});
+        })
+    }
+
+    componentWillUnmount() {
+        this.unsubscribePlayerChangeListener();
     }
 
     handleStartClick = (): void => {
@@ -94,29 +105,42 @@ export default class Countdown extends Component<any, any> {
 
     onTimerCompleteCallback = (): void => {
         this.setState({currentState: CountdownState.Stopped})
-        console.log('onTimerCompleteCallback')
     }
 
     onTimerUpdateCallback = (timeRemaining: number): void => {
-        this.setState({timeRemaining: timeRemaining})
-        console.log('onTimerUpdateCallback', timeRemaining)
-    }
+        const percentTimeRemaining: number = (timeRemaining / this.state.interval) * 100;
 
-    render() {
-        const percentTimeRemaining: number = (this.state.timeRemaining / this.state.interval) * 100;
         let warningClass: string = '';
         if (10 < percentTimeRemaining && percentTimeRemaining <= 30) {
             warningClass = 'low';
+            // OBR.action.setBadgeBackgroundColor('#FF8C0099')
+            // console.log(OBR.action)
+            OBR.action.getBadgeText()
+                .then((color) => {
+                    console.log(color)
+                })
+            OBR.action.setHeight(300)
         } else if (percentTimeRemaining <= 10) {
             warningClass = 'critical';
+            OBR.action.setBadgeBackgroundColor('#E3000099')
+            OBR.action.setHeight(400)
+
             if (this.state.timeRemaining == 0) {
                 warningClass += ' timeout';
             }
         }
 
+        this.setState({
+            timeRemaining: timeRemaining,
+            warningClass: warningClass,
+        })
+    }
+
+    render() {
+
         if (this.state.playerRole != 'GM') {
             return (
-                <div id={"countdown"} className={warningClass}>
+                <div id={"countdown"} className={this.state.warningClass}>
                     <CountdownDisplay
                         interval={this.state.interval}
                         onTimerComplete={this.onTimerCompleteCallback}
@@ -132,7 +156,7 @@ export default class Countdown extends Component<any, any> {
 
 
         return (
-                <div id={"countdown"} className={warningClass}>
+                <div id={"countdown"} className={this.state.warningClass}>
                     <CountdownDisplay
                         interval={this.state.interval}
                         onTimerComplete={this.onTimerCompleteCallback}
