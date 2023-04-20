@@ -21,9 +21,12 @@ export default class Countdown extends Component<any, any> {
         currentState: 'stopped',
         editHidden: true,
         warningClass: '',
+        isOpen: false,
+        hasEverPlayed: false,
     };
 
     unsubscribePlayerChangeListener: () => void;
+    unsubscribeActionOpenChangeListener: () => void;
 
     componentDidMount() {
         OBR.player.getRole()
@@ -34,10 +37,18 @@ export default class Countdown extends Component<any, any> {
         this.unsubscribePlayerChangeListener = OBR.player.onChange((player) => {
             this.setState({playerRole: player.role});
         })
+
+        this.unsubscribeActionOpenChangeListener = OBR.action.onOpenChange((isOpen) => {
+            if (isOpen) {
+                this.hideBadge();
+            }
+            this.setState({isOpen: isOpen});
+        })
     }
 
     componentWillUnmount() {
         this.unsubscribePlayerChangeListener();
+        this.unsubscribeActionOpenChangeListener();
     }
 
     handleStartClick = (): void => {
@@ -111,12 +122,11 @@ export default class Countdown extends Component<any, any> {
         const percentTimeRemaining: number = (timeRemaining / this.state.interval) * 100;
 
         let warningClass: string = '';
+
         if (10 < percentTimeRemaining && percentTimeRemaining <= 30) {
             warningClass = 'low';
-            // OBR.action.setBadgeBackgroundColor('#FF8C0099')
         } else if (percentTimeRemaining <= 10) {
             warningClass = 'critical';
-            // OBR.action.setBadgeBackgroundColor('#E3000099')
 
             if (this.state.timeRemaining == 0) {
                 warningClass += ' timeout';
@@ -126,10 +136,50 @@ export default class Countdown extends Component<any, any> {
         this.setState({
             timeRemaining: timeRemaining,
             warningClass: warningClass,
+            hasEverPlayed: true,
         })
     }
 
+    hideBadge = (): void => {
+        OBR.action.setBadgeText(undefined);
+    }
+
+    setBadge = (timeRemaining: number): void => {
+        if (this.state.isOpen || !this.state.hasEverPlayed) {
+            return
+        }
+
+        const percentTimeRemaining: number = (timeRemaining / this.state.interval) * 100;
+
+        let badgeColour: string = '';
+
+        if (10 < percentTimeRemaining && percentTimeRemaining <= 30) {
+            badgeColour = '#FF8C0099';
+        } else if (percentTimeRemaining <= 10) {
+            badgeColour = '#E3000099';
+        } else {
+            badgeColour = '#CACACACC';
+        }
+
+        // TODO: Move this into the timer and fetch it from the API
+        const h: number = Math.floor((timeRemaining / (1000 * 60 * 60)) % 24);
+        const m: number = Math.floor((timeRemaining / 1000 / 60) % 60);
+        const s: number = Math.floor((timeRemaining / 1000) % 60);
+
+        const hh = h.toString().padStart(2, '0');
+        const mm = m.toString().padStart(2, '0');
+        const ss = s.toString().padStart(2, '0');
+
+        const timerString = (h == 0 ? '' : hh + ':') + mm + ':' + ss;
+
+        OBR.action.setBadgeBackgroundColor(badgeColour);
+        OBR.action.setBadgeText(timerString);
+    }
+
     render() {
+        if (!this.state.isOpen) {
+            this.setBadge(this.state.timeRemaining);
+        }
 
         if (this.state.playerRole != 'GM') {
             return (
@@ -146,7 +196,6 @@ export default class Countdown extends Component<any, any> {
         const h: number = Math.floor((this.state.interval / (1000 * 60 * 60)) % 24);
         const m: number = Math.floor((this.state.interval / 1000 / 60) % 60);
         const s: number = Math.floor((this.state.interval / 1000) % 60);
-
 
         return (
                 <div id={"countdown"} className={this.state.warningClass}>
