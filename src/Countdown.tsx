@@ -5,25 +5,19 @@ import CountdownDisplay from "./CountdownDisplay";
 import {TimerEvent, TimerEventNames} from "./timerEvent";
 import {getPluginId} from "./getPluginId";
 import ControllerButton, {ControllerButtonType} from "./ControllerButton";
-
-enum CountdownState {
-    Stopped = 'stopped',
-    Playing = 'playing',
-    Paused = 'paused',
-}
+import {CountdownTimerAPI, CountdownTimerState} from "./CountdownTimer";
 
 export default class Countdown extends Component<any, any> {
     state = {
         playerRole: undefined,
         interval: 10000, // 120000, // 2 minutes
-        timeRemaining: 10000,
-        isPlaying: false,
-        currentState: 'stopped',
         editHidden: true,
         warningClass: '',
         isOpen: false,
         hasEverPlayed: false,
     };
+
+    private countdownTimer: CountdownTimerAPI;
 
     unsubscribePlayerChangeListener: () => void;
     unsubscribeActionOpenChangeListener: () => void;
@@ -52,25 +46,22 @@ export default class Countdown extends Component<any, any> {
     }
 
     handleStartClick = (): void => {
-        this.setState({currentState: CountdownState.Playing})
         this.triggerEvent({
             event: TimerEventNames.Play,
             timestamp: Date.now(),
-            interval: (this.state.currentState == CountdownState.Paused) ? this.state.timeRemaining : this.state.interval,
+            interval: (this.getCurrentState() == CountdownTimerState.Paused) ? this.getRemainingTime() : this.state.interval,
         });
     };
 
     handlePauseClick = (): void => {
-        this.setState({currentState: CountdownState.Paused})
         this.triggerEvent({
             event: TimerEventNames.Pause,
             timestamp: Date.now(),
-            interval: this.state.timeRemaining,
+            interval: this.getRemainingTime(),
         });
     };
 
     handleStopClick = (): void => {
-        this.setState({currentState: CountdownState.Stopped, timeRemaining: this.state.interval})
         this.triggerEvent({
             event: TimerEventNames.Stop,
             timestamp: Date.now(),
@@ -79,7 +70,6 @@ export default class Countdown extends Component<any, any> {
     };
 
     handleResetClick = (): void => {
-        this.setState({timeRemaining: this.state.interval})
         this.triggerEvent({
             event: TimerEventNames.Reset,
             timestamp: Date.now(),
@@ -115,7 +105,7 @@ export default class Countdown extends Component<any, any> {
     }
 
     onTimerCompleteCallback = (): void => {
-        this.setState({currentState: CountdownState.Stopped})
+        this.setBadge();
     }
 
     onTimerUpdateCallback = (timeRemaining: number): void => {
@@ -128,26 +118,34 @@ export default class Countdown extends Component<any, any> {
         } else if (percentTimeRemaining <= 10) {
             warningClass = 'critical';
 
-            if (this.state.timeRemaining == 0) {
+            if (timeRemaining == 0) {
                 warningClass += ' timeout';
             }
         }
 
         this.setState({
-            timeRemaining: timeRemaining,
             warningClass: warningClass,
             hasEverPlayed: true,
         })
+    }
+
+    getCurrentState = (): CountdownTimerState => {
+        return this.countdownTimer.currentState();
+    }
+
+    getRemainingTime = (): number => {
+        return this.countdownTimer.remainingTime();
     }
 
     hideBadge = (): void => {
         OBR.action.setBadgeText(undefined);
     }
 
-    setBadge = (timeRemaining: number): void => {
+    setBadge = (): void => {
         if (this.state.isOpen || !this.state.hasEverPlayed) {
             return
         }
+        const timeRemaining = this.getRemainingTime();
 
         const percentTimeRemaining: number = (timeRemaining / this.state.interval) * 100;
 
@@ -161,24 +159,19 @@ export default class Countdown extends Component<any, any> {
             badgeColour = '#CACACACC';
         }
 
-        // TODO: Move this into the timer and fetch it from the API
-        const h: number = Math.floor((timeRemaining / (1000 * 60 * 60)) % 24);
-        const m: number = Math.floor((timeRemaining / 1000 / 60) % 60);
-        const s: number = Math.floor((timeRemaining / 1000) % 60);
-
-        const hh = h.toString().padStart(2, '0');
-        const mm = m.toString().padStart(2, '0');
-        const ss = s.toString().padStart(2, '0');
-
-        const timerString = (h == 0 ? '' : hh + ':') + mm + ':' + ss;
+        const timerString = this.countdownTimer.displayTime();
 
         OBR.action.setBadgeBackgroundColor(badgeColour);
         OBR.action.setBadgeText(timerString);
     }
 
+    setCountdownTimerRef = (ref: CountdownTimerAPI): void => {
+        this.countdownTimer = ref;
+    }
+
     render() {
         if (!this.state.isOpen) {
-            this.setBadge(this.state.timeRemaining);
+            this.setBadge();
         }
 
         if (this.state.playerRole != 'GM') {
@@ -188,6 +181,7 @@ export default class Countdown extends Component<any, any> {
                         interval={this.state.interval}
                         onTimerComplete={this.onTimerCompleteCallback}
                         onTimerUpdate={this.onTimerUpdateCallback}
+                        setRef={this.setCountdownTimerRef}
                     />
                 </div>
             )
@@ -203,11 +197,12 @@ export default class Countdown extends Component<any, any> {
                         interval={this.state.interval}
                         onTimerComplete={this.onTimerCompleteCallback}
                         onTimerUpdate={this.onTimerUpdateCallback}
+                        setRef={this.setCountdownTimerRef}
                     />
                     <div id="controller">
-                        <ControllerButton buttonType={ControllerButtonType.Start} onClick={this.handleStartClick} disabled={this.state.currentState == CountdownState.Playing} />
-                        <ControllerButton buttonType={ControllerButtonType.Pause} onClick={this.handlePauseClick} disabled={this.state.currentState != CountdownState.Playing} />
-                        <ControllerButton buttonType={ControllerButtonType.Stop} onClick={this.handleStopClick} disabled={this.state.currentState != CountdownState.Playing} />
+                        <ControllerButton buttonType={ControllerButtonType.Start} onClick={this.handleStartClick} disabled={this.getCurrentState() == CountdownTimerState.Playing} />
+                        <ControllerButton buttonType={ControllerButtonType.Pause} onClick={this.handlePauseClick} disabled={this.getCurrentState() != CountdownTimerState.Playing} />
+                        <ControllerButton buttonType={ControllerButtonType.Stop} onClick={this.handleStopClick} disabled={this.getCurrentState() != CountdownTimerState.Playing} />
                         <ControllerButton buttonType={ControllerButtonType.Reset} onClick={this.handleResetClick} />
                         <ControllerButton buttonType={ControllerButtonType.Edit} onClick={this.handleEditClick} disabled={false} />
                     </div>

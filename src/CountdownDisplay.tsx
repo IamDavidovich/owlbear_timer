@@ -3,12 +3,13 @@ import React, {Component} from 'react';
 import OBR from "@owlbear-rodeo/sdk";
 import {getPluginId} from "./getPluginId";
 import {TimerEvent, TimerEventNames} from "./timerEvent";
-import CountdownTimer, {CountdownTimerAPI} from "./CountdownTimer";
+import CountdownTimer, {CountdownTimerAPI, CountdownTimerState} from "./CountdownTimer";
 
 interface CountdownDisplayProps {
     interval: number;
     onTimerUpdate: (timeRemaining: number) => void;
     onTimerComplete: () => void;
+    setRef: (ref: CountdownTimerAPI) => void;
 }
 export default class CountdownDisplay extends Component<CountdownDisplayProps, any> {
     state:{
@@ -21,7 +22,6 @@ export default class CountdownDisplay extends Component<CountdownDisplayProps, a
     private unsubscribeMetadataListener: () => void;
 
     componentDidMount() {
-        // Register listener
         this.unsubscribeMetadataListener = OBR.scene.onMetadataChange((metadata) => {
             let eventData = metadata[getPluginId('event')];
             if (!eventData) {
@@ -88,16 +88,23 @@ export default class CountdownDisplay extends Component<CountdownDisplayProps, a
     }
 
     handleUpdateDefaultIntervalEvent(event: TimerEvent): void {
-        if (!this.countdownTimer.isRunning()) {
+        if (this.countdownTimer.currentState() == CountdownTimerState.Stopped) {
             this.countdownTimer.reset(event.timestamp, event.interval)
         }
+    }
+
+    setCountdownTimerRef(ref: CountdownTimerAPI): void {
+        this.countdownTimer = ref;
+        // TODO: This should actually create a different interface that only exposes externally appropriate methods
+        // E.g. start/stop/etc. shouldn't be available beyond this point, they have to be triggered by metadata
+        this.props.setRef(ref);
     }
 
     render() {
         return (
             <>
                 <CountdownTimer
-                    setRef={(ref) => this.countdownTimer = ref}
+                    setRef={this.setCountdownTimerRef.bind(this)}
                     interval={this.props.interval}
                     onTimerComplete={this.props.onTimerComplete}
                     onTimerUpdate={this.props.onTimerUpdate}

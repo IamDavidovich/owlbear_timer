@@ -1,5 +1,11 @@
 import React, {Component} from 'react';
 
+export enum CountdownTimerState {
+    Stopped = 'stopped',
+    Playing = 'playing',
+    Paused = 'paused',
+}
+
 interface CountdownTimerProps {
     interval: number;
     setRef: (ref: CountdownTimerAPI) => void;
@@ -12,17 +18,19 @@ export interface CountdownTimerAPI {
     stop: (interval: number) => void;
     pause: (stopTimestamp: number) => void;
     reset: (startTimestamp: number, interval: number) => void;
-    getRemainingTime: () => number;
-    isRunning: () => boolean;
+    remainingTime: () => number;
+    currentState: () => CountdownTimerState;
+    displayTime: () => string;
 }
 
 export default class CountdownTimer extends Component<CountdownTimerProps, any> {
     state = {
         startTime: Date.now(),
         interval: this.props.interval,
-        timeRemaining: 10000,
+        timeRemaining: this.props.interval,
     }
 
+    private currentState: CountdownTimerState = CountdownTimerState.Stopped;
     private timeoutReference: number | null = null
 
     componentDidMount() {
@@ -57,6 +65,7 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
 
         if (total <= 0) {
             this.stopTimer();
+            this.currentState = CountdownTimerState.Stopped;
             this.props.onTimerComplete();
         }
     }
@@ -67,8 +76,9 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
             stop: this.stop.bind(this),
             pause: this.pause.bind(this),
             reset: this.reset.bind(this),
-            getRemainingTime: this.getRemainingTime.bind(this),
-            isRunning: this.isRunning.bind(this),
+            remainingTime: this.getRemainingTime.bind(this),
+            currentState: this.getCurrentState.bind(this),
+            displayTime: this.getDisplayTime.bind(this),
         }
     }
 
@@ -78,6 +88,7 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
             interval: interval,
             timeRemaining: interval,
         })
+        this.currentState = CountdownTimerState.Playing;
         this.props.onTimerUpdate(interval)
 
         this.startTimer();
@@ -89,12 +100,15 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
             interval: interval,
             timeRemaining: interval,
         })
+        this.currentState = CountdownTimerState.Stopped;
         this.props.onTimerUpdate(interval)
 
         this.stopTimer();
     }
 
     pause(pauseTimestamp: number): void {
+        this.currentState = CountdownTimerState.Paused;
+        this.props.onTimerUpdate(this.state.timeRemaining)
         this.stopTimer();
     }
 
@@ -122,19 +136,26 @@ export default class CountdownTimer extends Component<CountdownTimerProps, any> 
         return this.timeoutReference !== null;
     }
 
-    render() {
+    getCurrentState(): CountdownTimerState {
+        return this.currentState;
+    }
+
+    getDisplayTime(): string {
         const h: number = Math.floor((this.state.timeRemaining / (1000 * 60 * 60)) % 24);
         const m: number = Math.floor((this.state.timeRemaining / 1000 / 60) % 60);
         const s: number = Math.floor((this.state.timeRemaining / 1000) % 60);
 
-        const hh = h.toString().padStart(2, '0');
-        const mm = m.toString().padStart(2, '0');
-        const ss = s.toString().padStart(2, '0');
+        const hh: string = h.toString().padStart(2, '0');
+        const mm: string = m.toString().padStart(2, '0');
+        const ss: string = s.toString().padStart(2, '0');
 
-        const timerString = (h == 0 ? '' : hh + ':') + mm + ':' + ss;
+        return (h == 0 ? '' : hh + ':') + mm + ':' + ss;
+    }
+
+    render() {
         return (
             <>
-                <div id="countdown_timer">{timerString}</div>
+                <div id="countdown_timer">{this.getDisplayTime()}</div>
             </>
         );
     }
