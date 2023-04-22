@@ -15,12 +15,16 @@ export default class Countdown extends Component<any, any> {
         warningClass: '',
         isOpen: false,
         hasEverPlayed: false,
+        hInterval: 0,
+        mInterval: 0,
+        sInterval: 0,
     };
 
     private countdownTimer: CountdownTimerAPI;
 
     unsubscribePlayerChangeListener: () => void;
     unsubscribeActionOpenChangeListener: () => void;
+    unsubscribeSceneMetadataListener: () => void;
 
     componentDidMount() {
         OBR.player.getRole()
@@ -31,6 +35,23 @@ export default class Countdown extends Component<any, any> {
         this.unsubscribePlayerChangeListener = OBR.player.onChange((player) => {
             this.setState({playerRole: player.role});
         })
+
+        OBR.scene.getMetadata()
+            .then((metadata) => {
+                const interval = parseInt(metadata[getPluginId('interval')]);
+                if (interval) {
+                    this.handleIntervalUpdate(interval);
+                } else {
+                    this.setInterval(this.state.interval);
+                }
+            });
+
+        this.unsubscribeSceneMetadataListener = OBR.scene.onMetadataChange((metadata) => {
+            const interval = parseInt(metadata[getPluginId('interval')]);
+            if (interval) {
+                this.handleIntervalUpdate(interval);
+            }
+        });
 
         this.unsubscribeActionOpenChangeListener = OBR.action.onOpenChange((isOpen) => {
             if (isOpen) {
@@ -43,6 +64,7 @@ export default class Countdown extends Component<any, any> {
     componentWillUnmount() {
         this.unsubscribePlayerChangeListener();
         this.unsubscribeActionOpenChangeListener();
+        this.unsubscribeSceneMetadataListener();
     }
 
     handleStartClick = (): void => {
@@ -81,15 +103,41 @@ export default class Countdown extends Component<any, any> {
         this.setState({editHidden: false})
     }
 
+    handleIntervalUpdate = (interval: number): void => {
+        const h: number = Math.floor((interval / (1000 * 60 * 60)) % 24);
+        const m: number = Math.floor((interval / 1000 / 60) % 60);
+        const s: number = Math.floor((interval / 1000) % 60);
+
+        this.setState({
+            interval: interval,
+            hInterval: h,
+            mInterval: m,
+            sInterval: s,
+        });
+    }
+
+    setInterval = (interval: number): void => {
+        OBR.scene.setMetadata({
+            [getPluginId('interval')]: interval,
+        });
+    }
+
+    handleTimerIntervalChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        const {name, value} = e.target;
+        this.setState({[name]: value});
+    }
+
     handleTimerIntervalSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
 
-        const h = parseInt(e.target.elements.h.value)
-        const m = parseInt(e.target.elements.m.value)
-        const s = parseInt(e.target.elements.s.value)
+        const h = (this.state.hInterval * 60 * 60 * 1000);
+        const m = (this.state.mInterval * 60 * 1000);
+        const s = (this.state.sInterval * 1000);
 
-        const newInterval = (h * 60 * 60 * 1000) + (m * 60 * 1000) + (s * 1000)
-        this.setState({interval: newInterval, editHidden: true})
+        const newInterval =  h + m + s;
+
+        this.setInterval(newInterval);
+        this.setState({editHidden: true})
 
         this.triggerEvent({
             event: TimerEventNames.UpdateDefaultInterval,
@@ -187,10 +235,6 @@ export default class Countdown extends Component<any, any> {
             )
         }
 
-        const h: number = Math.floor((this.state.interval / (1000 * 60 * 60)) % 24);
-        const m: number = Math.floor((this.state.interval / 1000 / 60) % 60);
-        const s: number = Math.floor((this.state.interval / 1000) % 60);
-
         return (
                 <div id={"countdown"} className={this.state.warningClass}>
                     <CountdownDisplay
@@ -210,21 +254,24 @@ export default class Countdown extends Component<any, any> {
                     <div id="set-timer" className={this.state.editHidden ? 'hidden' : ''}>
                         <form id="timer-interval-form" onSubmit={this.handleTimerIntervalSubmit}>
                             <input
-                                name="h"
+                                name="hInterval"
                                 type="number"
-                                defaultValue={h}
+                                value={this.state.hInterval}
+                                onChange={this.handleTimerIntervalChange}
                             />
                             <span className="divider">:</span>
                             <input
-                                name="m"
+                                name="mInterval"
                                 type="number"
-                                defaultValue={m}
+                                value={this.state.mInterval}
+                                onChange={this.handleTimerIntervalChange}
                             />
                             <span className="divider">:</span>
                             <input
-                                name="s"
+                                name="sInterval"
                                 type="number"
-                                defaultValue={s}
+                                value={this.state.sInterval}
+                                onChange={this.handleTimerIntervalChange}
                             />
                             <button
                                 className={`controller_button accept`}
