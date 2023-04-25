@@ -1,9 +1,20 @@
-# Timer
-A countdown timer for Owlbear Rodeo, to keep your turns ticking.
+# Owlbear Timer
+A customisable countdown timer for Owlbear Rodeo. Help to keep your combat moving, apply pressure, or any other timing needs.
+
+![Example](/docs/example_screen.png)
+
+## Installing
+
+In the extensions section of Owlbear Rodeo 2, click "Add Extension" and use the link
+`https://iamdavidovich.github.io/owlbear_timer/manifest.json`
+
+## License
+
+MIT
+
+## Contributing
+
+Any contributions, feature requests, bugs, etc. are welcome. Please open a PR or issue as appropriate.
 
 ## TODO
-- Badge appears with default values when interval is set... (look at timer update hook vs rerender hook?)
- 
 - Migrate all my ancient react code to be more modern
-- Get it up on GH + pages
-- A proper readme.

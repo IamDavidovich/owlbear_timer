@@ -1,7 +1,7 @@
 {
-  "name": "Round Timer",
-  "version": "0.2.1",
-  "manifest_version": 3,
+  "name": "Owlbear Timer",
+  "version": "0.2.2",
+  "manifest_version": 4,
   "action": {
     "title": "Timer",
     "icon": "/owlbear_timer/icon.svg",
