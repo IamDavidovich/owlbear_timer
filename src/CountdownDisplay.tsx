@@ -23,15 +23,9 @@ export default class CountdownDisplay extends Component<CountdownDisplayProps, a
 
     componentDidMount() {
         this.unsubscribeMetadataListener = OBR.scene.onMetadataChange((metadata) => {
-            let eventData = metadata[getPluginId('event')];
-            if (!eventData) {
+            const lastEvent = metadata[getPluginId('event')] as TimerEvent;
+            if (!lastEvent) {
                 return;
-            }
-
-            let lastEvent: TimerEvent = {
-                event: eventData.event as TimerEventNames,
-                timestamp: eventData.timestamp as number,
-                interval: eventData.interval as number,
             }
 
             if (!this.state.lastEvent) {

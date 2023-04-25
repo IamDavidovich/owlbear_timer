@@ -1,4 +1,4 @@
-export type TimerEvent = {
+export interface TimerEvent {
     event: TimerEventNames;
     timestamp: number;
     interval: number;

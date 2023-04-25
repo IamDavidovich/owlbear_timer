@@ -38,7 +38,7 @@ export default class Countdown extends Component<any, any> {
 
         OBR.scene.getMetadata()
             .then((metadata) => {
-                const interval = parseInt(metadata[getPluginId('interval')]);
+                const interval = parseInt(String(metadata[getPluginId('interval')]));
                 if (interval) {
                     this.handleIntervalUpdate(interval);
                 } else {
@@ -47,7 +47,7 @@ export default class Countdown extends Component<any, any> {
             });
 
         this.unsubscribeSceneMetadataListener = OBR.scene.onMetadataChange((metadata) => {
-            const interval = parseInt(metadata[getPluginId('interval')]);
+            const interval = parseInt(String(metadata[getPluginId('interval')]));
             if (interval) {
                 this.handleIntervalUpdate(interval);
             }
@@ -247,7 +247,7 @@ export default class Countdown extends Component<any, any> {
                         <ControllerButton buttonType={ControllerButtonType.Start} onClick={this.handleStartClick} disabled={this.getCurrentState() == CountdownTimerState.Playing} />
                         <ControllerButton buttonType={ControllerButtonType.Pause} onClick={this.handlePauseClick} disabled={this.getCurrentState() != CountdownTimerState.Playing} />
                         <ControllerButton buttonType={ControllerButtonType.Stop} onClick={this.handleStopClick} disabled={this.getCurrentState() != CountdownTimerState.Playing} />
-                        <ControllerButton buttonType={ControllerButtonType.Reset} onClick={this.handleResetClick} />
+                        <ControllerButton buttonType={ControllerButtonType.Reset} onClick={this.handleResetClick} disabled={false}/>
                         <ControllerButton buttonType={ControllerButtonType.Edit} onClick={this.handleEditClick} disabled={false} />
                     </div>
 
