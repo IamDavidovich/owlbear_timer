@@ -10,13 +10,13 @@ import {CountdownTimerAPI, CountdownTimerState} from "./CountdownTimer";
 export default class Countdown extends Component<any, any> {
     state = {
         playerRole: undefined,
-        interval: 10000, // 120000, // 2 minutes
+        interval: 120000, // 2 minutes
         editHidden: true,
         warningClass: '',
         isOpen: false,
         hasEverPlayed: false,
         hInterval: 0,
-        mInterval: 0,
+        mInterval: 2,
         sInterval: 0,
     };
 
