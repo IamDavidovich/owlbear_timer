@@ -1,10 +1,10 @@
 {
   "name": "Round Timer",
-  "version": "0.2.0",
-  "manifest_version": 2,
+  "version": "0.2.1",
+  "manifest_version": 3,
   "action": {
     "title": "Timer",
-    "icon": "/icon.svg",
+    "icon": "/owlbear_timer/icon.svg",
     "popover": "/owlbear_timer/",
     "height": 150,
     "width": 400
